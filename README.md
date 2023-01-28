@@ -68,10 +68,11 @@ Result:
 
 `correct seeds: basic dawn renew punch arch situate resist indicate call lens group empty brother damp this verify eternal injury arrest question armor hole lounge practice`
 
+`SK: p2pkh:KwRMQoTQQ9429k4cUaPehpe9SarsUva7bvNDAXscFbcLTyLvke7S`
 
 ### with 12 seeds:
 
-`python3 seedrecover.py --no-dupchecks --mnemonic-length 12 --language EN --dsw --wallet-type BIP39 --addr-limit 1 --addrs bc1q7kw2uepv6hfffhhxx2vplkkpcwsslcw9hsupc6 --seedlist ./seed-list.txt`
+`python3 seedrecover.py --no-dupchecks --mnemonic-length 12 --language en --dsw --wallet-type BIP39 --addr-limit 1 --bip32-path "m/84'/0'/0'/0/" --addrs bc1q7kw2uepv6hfffhhxx2vplkkpcwsslcw9hsupc6  --addr-limit 10 --tokenlist ./seeds.txt`
 
 seed-list.txt content (put in lower-case, upper-case and so on):
     ocean hidden kidney famous rich season gloom husband spring boy attitude convince
@@ -93,4 +94,23 @@ seed-list.txt content (put in lower-case, upper-case and so on):
 
 `python3 seedrecover.py --no-dupchecks --mnemonic-length 12 --language EN --dsw --wallet-type BIP39 --addr-limit 1 --addrs 17GR7xWtWrfYm6y3xoZy8cXioVqBbSYcpU --tokenlist ./btcrecover/test/test-listfiles/SeedTokenListTest.txt`
 
+## Get private Key from seeds
 
+- option 1: [Mnemonic Code Converter](https://iancoleman.io/bip39/#english)
+- option 2: Import seeds in wallet. Example [Electrum](https://electrum.org/#home)
+- option 3: [bitcoiner guide](https://bitcoiner.guide/seed/)
+
+---
+
+Keep in mind:
+
+* This seeds: grocery still faith tribe worth bleak furnace raven report prevent young excuse
+* generate: 
+    - bip32: Path: m/0'/0'/0 - Address: 16sRpnVnCAy8JKRinVV7UYEXYyqT1peujo
+    - bip44: Path: m/44'/0'/0'/0/0 - Address: 17QtS9Vq95ZpoawFkTdg2Ms3DgG1k1xCzm
+    - bip49: Path: m/49'/0'/0'/0/0 - Address: 3QaYqaqz1HvuXVFXLZtcgPdqhwwMYB1n8S
+    - bip84: Path: m/84'/0'/0'/0/0 - Address: bc1qm4zz7jstwp5x5cqhmljtj76rvy63xglxwslfs2
+    - bip86: Path: m/86'/0'/0'/0/0 - Address: bc1prjdh9lr236n988yf5yx3a2ecnmad096nylr655r073dsnm5qzfmskjgmkh
+
+
+you can try [here](https://bitcoiner.guide/seed/)
