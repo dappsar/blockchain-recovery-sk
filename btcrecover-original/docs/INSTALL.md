@@ -1,199 +1,174 @@
-## *btcrecover* Installation ##
+# Installing BTCRecover #
 
-Just download the latest version from <https://github.com/gurnec/btcrecover/archive/master.zip> and unzip it to a location of your choice. There’s no installation procedure for *btcrecover* itself, however there are additional requirements below depending on your operating system and the wallet type you’re trying to recover.
+There are a few basic steps to installing BTCRecover.
 
-### Wallet Installation Requirements ###
+1) Download and unzip the BTCRecover script
+
+2) Download and install Python3
+
+3) Install required packages via Python PIP
+
+4) (Optional) Install PyOpenCL module for GPU Acceleration
+
+5) Test your installation (Optional, but a good idea)
+
+These steps are also covered in Videos below for each supported Operating System.
+
+**Note: Depending on your operating system and python environment, you may need to replace the `python` command with `python3`. (By default, the command to use will be `python` in Windows and `python3` in Linux) Most non-technical users are on Windows, so all example commands will use `python` to match the defaults for this platform** 
+
+**Video Tutorials**
+
+Windows: <https://youtu.be/8q65eqpf4gE>
+
+Ubuntu Linux: <https://youtu.be/Met3NbxcZTU>
+
+MacOS: <https://youtu.be/Qzc3oHzbcAo>
+
+
+## 1) Downloading *btcrecover* ##
+
+Just download the latest version from <https://github.com/3rdIteration/btcrecover/archive/master.zip> and unzip it to a location of your choice. There’s no installation procedure for *btcrecover* itself, however there are additional requirements below depending on your operating system and the wallet type you’re trying to recover.
+
+
+## 2) Install Python ##
+
+**Note:** Only Python 3.7 and later are officially supported... BTCRecover is automatically tested with all supported Python versions (3.7, 3.8, 3.9, 3.10) on all supported environments (Windows, Linux, Mac), so you can be sure that both BTCRecover and all required packages will work correctly. Some features of BTCRecover may work on earlier versions of Python, your best bet is to use run-all-tests.py to see what works and what doesn't...
+
+### Windows ###
+Video Demo of Installing BTCRecover in Windows: <https://youtu.be/8q65eqpf4gE>
+
+Visit the Python download page here: <https://www.python.org/downloads/windows/>, and click the link for the latest **Python 3.9** release (Python 3.10, etc, will work, but Python 3.9 has simpler installation of required modules) release near the top of the page under the heading *Python Releases for Windows*. Download and run either the `Windows x86 MSI installer` for the 32-bit version of Python, or the `Windows x86-64 MSI installer` for the 64-bit one. Modern PCs should use the 64-bit version, however if you're unsure which one is compatible with your PC, choose the 32-bit one.
+
+_**When installing Python in Windows, be sure to select to "Add Python 3.9 to PATH" on the first screen of the installer...**_
+
+**Note for Large Multi-CPU Systems:** Windows limits the number of possible threads to 64. If your system has more logical/physical cores than this, your best bet is to run the tool in Linux. (Ubuntu is an easy place to start)
+
+### Linux ###
+Video Demo of Installing BTCRecover in Ubuntu Live USB: <https://youtu.be/Met3NbxcZTU>
+
+Most modern distributions include Python 3 pre-installed. Older Linux distributions will include Python2, so you will need to install python3.
+
+If you are using SeedRecover, you will also need to install tkinter (python3-tk) if you want to use the default GUI popups for seedrecover. (Command line use will work find without this package)
+
+Some distributions of Linux will bundle this with Python3, but for others like Ubuntu, you will need to manually install the tkinter module.
+
+You can install this with the command: `sudo apt install python3-tk`
+
+If any of the "pip3" commands below fail, you may also need to install PIP via the command: `sudo apt install python3-pip`
+
+If you get a message that there is no installation candidate for Python3-pip, you will need to enable the "universe" repository with the command: `sudo add-apt-repository universe`
+
+You can then re-run the command to install python3-pip from above.
+
+#### Enabling Native RIPEMD160 Support
+As of OpenSSL v3 (Late 2021), ripemd160 is no longer enabled by default and is now part of the "Legacy" set of hash functions. In Linux/MacOS environments, the hashlib module in Python relies on OpenSSL for ripemd160, so if you want full performance in these environments, you may need modify your OpenSSL settings to enable the legacy provider.
+
+As of July 2022, BTCRecover does include a "pure Python" implementation of RIPEMD160, but this only offers about 1/3 of the performance when compared to a native implementation via hashlib.
+
+Video Demo of this applying fix can be found here: <https://youtu.be/S3DWKp0i4i0>
+
+An example of the modified configuration file can be found here: <https://github.com/3rdIteration/btcrecover/blob/master/docs/example_openssl.cnf>
+
+For more information, see the relevant issue on the OpenSSL Github repository: <https://github.com/openssl/openssl/issues/16994>
+
+### MacOS ###
+
+Video Demo of Installing BTCRecover in MacOS: <https://youtu.be/Qzc3oHzbcAo>
+
+1) [Install brew via instructions at brew.sh](https://brew.sh)
+   
+The Install command is:  
+
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+_Be sure to follow the instructions and add brew to your path..._
+   
+2) [Install coincurve build requirements](https://ofek.dev/coincurve/install/) 
+   
+The Install command is:
+
+    brew install autoconf automake libffi libtool pkg-config python
+
+_If you want to use the graphical interface, be sure to follow the instructions to install tkinter as well._
+
+**Once you have installed Python via Brew, you will need to run both Python and PIP with commands that include the full version numnber. (eg: python3.9 and pip3.9)**
+
+## 3) Install requirements via Python Pip ##
+
+Once both Python3 and PIP have been installed, you can automatically install all the requirements for all features of BTCRecover with the command:
+
+`pip3 install -r requirements.txt`
+
+*If you are an advanced user, you may choose to install only those additional packages that are required for the specific recovery you are attempting. More information about which wallets require which packages is at the bottom of this guide.*
+
+## 4) Install PyOpenCL for GPU Acceleration ##
+
+GPU Support will require additional OpenCL libraries to be installed that aren't covered by the above commands... 
+
+For more information and instructions, [see the GPU acceleration page here](./GPU_Acceleration.md)
+
+## 5) Testing your Installation ##
+
+Once you have downloaded and unzipped BTCRecover, installed Python and all required libraries, you can test the program with the command:
+
+`python run-all-tests.py -vv`
+
+This command will take a few minutes to run and should complete without errors, indicating that your system is ready to use all features of BTCRecover.
+
+## Wallet Python Package Requirements ##
+
+**If you want to install all requirements for all wallet types, you can simply use the command `pip3 install -r requirements-full.txt`**
 
 Locate your wallet type in the list below, and follow the instructions for only the sections listed next to your wallet.
 
-**Note** that for Armory wallets, you must have Armory 0.92.x or later installed on the computer where you run *btcrecover*.
-
- * Armory 0.91.x or earlier - unsupported, please upgrade Armory first
- * Armory 0.92.x on Windows - [Python 2.7](#python-27) **32-bit** (x86)
- * Armory 0.93+ on Windows - [Python 2.7](#python-27) **64-bit** (x86-64)
- * Armory 0.92+ on Linux - no additional requirements
- * Armory 0.92+ on OS X - some versions of Armory may not work correctly on OS X, if in doubt use version 0.95.1
- * Bitcoin Unlimited/Classic/XT/Core - [Python 2.7](#python-27),  optional: [PyCrypto](#pycrypto)
- * MultiBit Classic - [Python 2.7](#python-27), recommended: [PyCrypto](#pycrypto)
- * MultiBit HD - [Python 2.7](#python-27), [scrypt](#scrypt), optional: [PyCrypto](#pycrypto)
- * Electrum (1.x or 2.x) - [Python 2.7](#python-27), recommended: [PyCrypto](#pycrypto)
- * Electrum 2.8+ fully encrypted wallets - [Python 2.7](#python-27) (2.7.8+ recommended), [coincurve](Seedrecover_Quick_Start_Guide.md#installation), optional: [PyCrypto](#pycrypto)
- * BIP-39 Bitcoin passphrases (e.g. TREZOR) - [Python 2.7](#python-27) (2.7.8+ recommended), [coincurve](Seedrecover_Quick_Start_Guide.md#installation)
- * BIP-39 Ethereum passphrases (e.g. TREZOR) - [Python 2.7](#python-27) (2.7.8+ recommended), [coincurve and pysha3](Seedrecover_Quick_Start_Guide.md#installation)
- * Hive for OS X - [Python 2.7](#python-27), [scrypt](#scrypt), [Google protobuf](#google-protocol-buffers), optional: [PyCrypto](#pycrypto)
- * mSIGNA (CoinVault) - [Python 2.7](#python-27), recommended: [PyCrypto](#pycrypto)
- * Blockchain.info - [Python 2.7](#python-27) (2.7.8+ recommended), recommended: [PyCrypto](#pycrypto)
- * Bitcoin Wallet for Android/BlackBerry backup - [Python 2.7](#python-27), recommended: [PyCrypto](#pycrypto)
- * Bitcoin Wallet for Android/BlackBerry spending PIN - [Python 2.7](#python-27), [scrypt](#scrypt), [Google protobuf](#google-protocol-buffers), optional: [PyCrypto](#pycrypto)
- * KnC Wallet for Android backup - [Python 2.7](#python-27), recommended: [PyCrypto](#pycrypto)
- * Bither - [Python 2.7](#python-27), [scrypt](#scrypt), [coincurve](Seedrecover_Quick_Start_Guide.md#installation), optional: [PyCrypto](#pycrypto)
- * Litecoin-Qt - [Python 2.7](#python-27),  optional: [PyCrypto](#pycrypto)
- * Electrum-LTC - [Python 2.7](#python-27), recommended: [PyCrypto](#pycrypto)
- * Litecoin Wallet for Android - [Python 2.7](#python-27), recommended: [PyCrypto](#pycrypto)
- * Dogecoin Core - [Python 2.7](#python-27),  optional: [PyCrypto](#pycrypto)
- * MultiDoge - [Python 2.7](#python-27), recommended: [PyCrypto](#pycrypto)
- * Dogecoin Wallet for Android - [Python 2.7](#python-27), recommended: [PyCrypto](#pycrypto)
-
+ * Bitcoin Core - optional: [PyCryptoDome](#pycryptodome)
+ * MultiBit Classic - recommended: [PyCryptoDome](#pycryptodome)
+ * MultiBit HD - optional: [PyCryptoDome](#pycryptodome)
+ * Electrum (1.x or 2.x) - recommended: [PyCryptoDome](#pycryptodome)
+ * Electrum 2.8+ fully encrypted wallets - [coincurve](Seedrecover_Quick_Start_Guide.md#installation), optional: [PyCryptoDome](#pycryptodome)
+ * BIP-39 Bitcoin passphrases (e.g. TREZOR) - [coincurve](Seedrecover_Quick_Start_Guide.md#installation)
+ * BIP-39 Ethereum passphrases (e.g. TREZOR) - [PyCryptoDome](#pycryptodome) [coincurve](Seedrecover_Quick_Start_Guide.md#installation)
+ * Hive for OS X - [Google protobuf](#google-protocol-buffers), optional: [PyCryptoDome](#pycryptodome)
+ * mSIGNA (CoinVault) - recommended: [PyCryptoDome](#pycryptodome)
+ * Blockchain.info - recommended: [PyCryptoDome](#pycryptodome)
+ * Bitcoin Wallet for Android/BlackBerry backup - recommended: [PyCryptoDome](#pycryptodome)
+ * Bitcoin Wallet for Android/BlackBerry spending PIN - [scrypt](#scrypt), [Google protobuf](#google-protocol-buffers), optional: [PyCryptoDome](#pycryptodome)
+ * KnC Wallet for Android backup - recommended: [PyCryptoDome](#pycryptodome)
+ * Bither - [coincurve](Seedrecover_Quick_Start_Guide.md#installation), optional: [PyCryptoDome](#pycryptodome)
+ * Litecoin-Qt -  optional: [PyCryptoDome](#pycryptodome)
+ * Electrum-LTC - recommended: [PyCryptoDome](#pycryptodome)
+ * Litecoin Wallet for Android - recommended: [PyCryptoDome](#pycryptodome)
+ * Dogecoin Core -  optional: [PyCryptoDome](#pycryptodome)
+ * MultiDoge - recommended: [PyCryptoDome](#pycryptodome)
+ * Dogecoin Wallet for Android - recommended: [PyCryptoDome](#pycryptodome)
+ * SLIP39 Wallets: [shamir-mnemonic](#shamir-mnemonic)
+ * Py_Crypto_HD_Wallet Based BIP39 Wallets: [py_crypto_hd_wallet](#py_crypto_hd_wallet)
+    * Avalanche
+    * Cosmos (Atom)
+    * Polkadot
+    * Secret Network
+    * Solana
+    * Stellar
+    * Tezos
+    * Tron
+ * Helium BIP39 Wallets: [pynacl](#pynacl) and [bitstring](#bitstring)
+ * Eth Keystore Files: [eth-keyfile](#eth-keyfile)
+ * Groestlecoin BIP39 Wallets: [groestlcoin_hash](#groestlcoin_hash)
+ * BIP38 Encrypted Private Keys: [ecdsa](#ecdsa)
 
 ----------
 
+### PyCryptoDome ###
 
-### Python 2.7 ###
+With the exception of Ethereum wallets, PyCryptoDome is not strictly required for any wallet, however it offers a 20x speed improvement for wallets that tag it as recommended in the list above.
 
-##### Windows #####
 
-Visit the Python download page here: <https://www.python.org/downloads/windows/>, and click the link for the latest **Python 2.7** release near the top of the page under the heading *Python Releases for Windows*. Download and run either the `Windows x86 MSI installer` for the 32-bit version of Python, or the `Windows x86-64 MSI installer` for the 64-bit one (for Armory wallets, be sure to choose the correct one as noted above). Modern PCs should use the 64-bit version, however if you're unsure which one is compatible with your PC, choose the 32-bit one.
+### Py_Crypto_HD_Wallet ###
 
-##### Linux #####
+This module is required for a number of different wallet types.
 
-Most distributions include Python 2.7 pre-installed.
+For Windows Users, you will also need to install the Microsoft Visual C++ Build Tools befor you will be able to successfully install the module. 
 
-Note that for Blockchain.info wallets, Python version 2.7.8 or greater is recommended, and will run approximately 5 times faster than earlier versions. You can determine which version of Python you have installed by running `python --version` in a terminal. If your version is earlier than 2.7.8, you may want to check if your distribution has a “backports” repository with a more up-to-date version.
+A video tutorial that covers this can be found here: <https://youtu.be/0LMUf0R9Pi4>
 
-Some Linux distributions do not include the bsddb (Berkeley DB) Python module. This is usually not a problem, however if you encounter a `master key #1 not found` error, it might be resolved by installing the bsddb module (or a version of Python which includes it).
-
-##### OS X #####
-
-Since OS X includes an older version of Python 2, it's strongly recommended that you install the latest version. Doing so will not affect the older OS X version, the new one will be installed in a different place from the existing one.
-
-To install the latest version, visit the Python download page here: <https://www.python.org/downloads/mac-osx/>, and click the link for the latest **Python 2** release. Download and open either the `Mac OS X 64-bit/32-bit installer` for OS X 10.6 and later (most people will want this one), or the `Mac OS X 32-bit i386/PPC installer` for OS X 10.5.
-
-If you have any Terminal windows open, close them after the installation completes to allow the new version to go into effect.
-
-If (and only if) you decide *not* to install the latest version of Python 2, you will need to manually install `pip` if you need to install any of the other requirements below:
-
-        curl https://bootstrap.pypa.io/get-pip.py | sudo python
-
-
-### PyCrypto ###
-
-PyCrypto is not strictly required for any wallet, however it offers a 20x speed improvement for wallets that tag it as recommended in the list above.
-
-##### Windows #####
-
-Download and run the PyCrypto 2.6 installer for Python 2.7, either the 32-bit version or the 64-bit version to match your version of Python. This is either `PyCrypto 2.6 for Python 2.7 32bit` or `PyCrypto 2.6 for Python 2.7 64bit` available here: <http://www.voidspace.org.uk/python/modules.shtml#pycrypto>
-
-##### Linux #####
-
-Many distributions include PyCrypto pre-installed, check your distribution’s package management system to see if it is available (it is often called “python-crypto”). If not, try installing it from PyPI, for example on Debian-like distributions (including Ubuntu), if this doesn't work:
-
-    sudo apt-get install python-crypto
-
-then try this instead:
-
-    sudo apt-get install python-pip
-    sudo pip install pycrypto
-
-##### OS X #####
-
- 1. Open a terminal window (open the Launchpad and search for "terminal"). Type this and then choose `Install` to install the command line developer tools:
-
-        xcode-select --install
-
- 2. Type this to install PyCrypto:
-
-        sudo pip install pycrypto
-
-
-### scrypt ###
-
-##### Windows #####
-
- 1. Open a command prompt window, and type this to install pylibscrypt:
-
-        C:\Python27\Scripts\pip install pylibscrypt
-
- 2. Download this libsodium zip file, and extract it to a temporary location: <https://download.libsodium.org/libsodium/releases/libsodium-1.0.16-msvc.zip>
-
- 3. Find the correct `libsodium.dll` file from the extracted files, it will be located at one of these two paths:
-
-        Win32\Release\v141\dynamic\libsodium.dll
-        x64\Release\v141\dynamic\libsodium.dll
-
-    Choose either the 32-bit version (the first one above) or the 64-bit version (the second), it **must** match the version of Python that you've installed. Note that the 64-bit version is recommended if it's supported by your computer (it is approximately 35% faster than the 32-bit version, so install the 64-bit versions of both libsodium *and* Python for best performance).
-
- 4. Copy the chosen `libsodium.dll` file into your `C:\Python27` directory.
-
- 5. Download and install one of the two update packages below from Microsoft, either the 32-bit version or the 64-bit version (the second) to match the version of Python that you've installed.
- 
-    * [Microsoft Visual C++ Redistributable for Visual Studio 2017 **32-bit**](https://go.microsoft.com/fwlink/?LinkId=746571)
-    * [Microsoft Visual C++ Redistributable for Visual Studio 2017 **64-bit**](https://go.microsoft.com/fwlink/?LinkId=746572)
-
-##### Linux #####
-
-Install pylibscrypt and at least one scrypt library, for example on Debian-like distributions (including Ubuntu):
-
- 1. Open a terminal window, and type this to install pylibscrypt:
-
-        sudo apt-get install python-pip
-        sudo pip install pylibscrypt
-
- 2. Install *one* of the scrypt libraries listed under the Requirements section here: <https://pypi.python.org/pypi/pylibscrypt>, e.g. try each of these commands, stopping after the *first one* succeeds:
-
-        sudo apt-get install libscrypt0
-        sudo apt-get install python-scrypt
-        sudo pip install scrypt
-        sudo apt-get install libsodium18
-        sudo apt-get install libsodium13
-
-##### OS X #####
-
- 1. Open a terminal window (open the Launchpad and search for "terminal"). Type this and then choose `Install` to install the command line developer tools:
-
-        xcode-select --install
-
- 2. Type this to install pylibscrypt and libscrypt:
-
-        sudo pip install pylibscrypt
-
-        curl -Lo libscrypt.zip https://github.com/technion/libscrypt/archive/master.zip
-        unzip libscrypt.zip
-        cd libscrypt-master
-        make CFLAGS_EXTRA= LDFLAGS= LDFLAGS_EXTRA= && sudo make install-osx
-
-
-### Google Protocol Buffers ###
-
-##### Windows #####
-
-Open a command prompt window, and type this to install Google Protocol Buffers:
-
-    C:\Python27\Scripts\pip install protobuf
-
-##### Linux #####
-
-Install the Google's Python protobuf library, for example on Debian-like distributions (including Ubuntu), open a terminal window and type this:
-
-    sudo apt-get install python-pip
-    sudo pip install protobuf
-
-##### OS X #####
-
- 1. Open a terminal window (open the Launchpad and search for "terminal"). Type this and then choose `Install` to install the command line developer tools:
-
-        xcode-select --install
-
- 2. Type this to install Google Protocol Buffers:
-
-        sudo pip install protobuf
-
-----------
-
-
-### Windows GPU acceleration for Bitcoin Unlimited/Classic/XT/Core, Armory, or Litecoin-Qt ###
-
- 1. Download the latest version of PyOpenCL for OpenCL 1.2 / Python 2.7, either the 32-bit version or the 64-bit version to match the version of Python you installed, from here: <http://www.lfd.uci.edu/~gohlke/pythonlibs/#pyopencl>. For best compatibility, be sure to select a version for OpenCL 1.2 *and no later* (look for "cl12" in the file name, and also look for "27" to match Python 2.7).
-
-    As of this writing, the 32-bit and 64-bit versions are named respectively:
-
-        pyopencl-2017.1.1+cl12-cp27-cp27m-win32.whl
-        pyopencl-2017.1.1+cl12-cp27-cp27m-win_amd64.whl
-
- 2. Open a command prompt window, and type this to install PyOpenCL and its dependencies:
-
-        cd %USERPROFILE%\Downloads
-        C:\Python27\Scripts\pip install pyopencl-2017.1.1+cl12-cp27-cp27m-win_amd64.whl
-
-    Note that you may need to change either the directory (on the first line) or the filename (on the second) depending on the filename you downloaded and its location.
-
-[PyCrypto](#pycrypto) is also recommended for Bitcoin Unlimited/Classic/XT/Core or Litecoin-Qt wallets for a 2x speed improvement.
+For MacOS and Linux users, the module should build/install just fine if you follow the installation instructions on this page for your platform.

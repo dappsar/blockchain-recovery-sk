@@ -1,5 +1,6 @@
 # addressset.py -- btcrecover AddressSet library
 # Copyright (C) 2017 Christopher Gurnee
+#               2019-2021 Stephen Rothery
 #
 # This file is part of btcrecover.
 #
@@ -16,20 +17,28 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see http://www.gnu.org/licenses/
 
-# If you find this program helpful, please consider a small
-# donation to the developer at the following Bitcoin address:
-#
-#           3Au8ZodNHPei7MQiSVAWb7NB2yqsb48GW4
-#
-#                      Thank You!
 
-# (all optional futures for 2.7 except unicode_literals)
-from __future__ import print_function, absolute_import, division
+__version__ =  "1.10.0-CryptoGuide"
 
-__version__ =  "0.1.3"
-
-import struct, base64, io, mmap, ast, itertools, sys, gc, glob
+import struct, base64, io, mmap, ast, itertools, sys, gc, glob, math
 from os import path
+
+from datetime import datetime
+
+import lib.bitcoinlib as bitcoinlib
+
+def supportedChains(magic):
+    switcher={
+        b"\xf9\xbe\xb4\xd9":1,    #BTC Main Net Magic (Also shared by BCH, BSV, etc)
+        b"\xbf\x0c\x6b\xbd":0,    #Dash
+        b"\xfb\xc0\xb6\xdb":1,    #Litecoin, Monacoin, 
+        b"\xfa\xbf\xb5\xda":1,    #Vertcoin
+        b"\xf7\xa7\x7e\xff":0,    #Verge
+        b"\xc0\xc0\xc0\xc0":0,    #dogecoin
+        b"\xfa\xc3\xb6\xda":1,    #digibyte
+        b"\xf9\xbe\xb4\xd4":1     #groestlcoin
+        }
+    return switcher.get(magic,-1)
 
 
 def bytes_to_int(bytes_rep):
@@ -71,6 +80,7 @@ class AddressSet(object):
             raise ValueError("bytes_per_addr must be between 1 and 19 inclusive")
         if not 0.0 < max_load < 1.0:
             raise ValueError("max_load must be between 0.0 and 1.0 exclusive")
+        self._dbLength       = table_len
         self._table_bytes    = table_len * bytes_per_addr         # len of hash table in bytes
         self._bytes_per_addr = bytes_per_addr                     # number of bytes per address to store
         self._null_addr      = b"\0" * bytes_per_addr             # all 0s is an empty hash table slot
@@ -85,6 +95,11 @@ class AddressSet(object):
         if self._bytes_per_addr + self._hash_bytes > 20:
             raise ValueError("not enough bytes for both hashing and storage; "
                              "reduce either the bytes_per_addr or table_len")
+
+        if table_len > 1000 : #only display this if we are creating an addressDB
+            # Print Timestamp that this step occured
+            print(datetime.now().strftime("%Y-%m-%d %H:%M:%S"), ": ", end="")
+            print("Creating Address Database with room for", self._max_len, "addresses")
 
     def __getstate__(self):
         # mmaps can't be pickled, so save only what's needed to recreate the object from scratch later
@@ -109,19 +124,41 @@ class AddressSet(object):
     def __contains__(self, address):
         return self._find(address) is True
 
-    def add(self, address):
-        """Adds the address to the set
+    def add(self, address, textAddresses = False, addressType = None, coin = 0):
+        """Adds the address to the set or outputs it to a text file
 
         :param address: the address in hash160 (length 20) format to add
-        :type address: bytes or str
+        :textAddresses address: whether to dump the address to text too
+        :addressType: only used for formatting the text representation of the address
+        :coin: only used for formatting the text representation of the address (currently unused)
         """
-        pos = self._find(address)
-        if pos is not True:
+
+        #Check Address Type and convert to bytes if in str format. (Keeps unit tests working as-is in python 3)
+        if type(address) is str :
+            address = address.encode()
+
+        pos = self._find(address) #Check to see if the address is already in the addressDB
+        if pos is not True: #If the address isn't in the DB, add it
+            if textAddresses:
+                if addressType == 'Bech32':
+                    print(bitcoinlib.encoding.pubkeyhash_to_addr_bech32(address),file=open("addresses.txt", "a"))
+                elif addressType == 'P2SH':
+                    print(bitcoinlib.encoding.pubkeyhash_to_addr_base58(address, b'\x05'),file=open("addresses.txt", "a"))
+                elif addressType == 'P2PKH':
+                    print(bitcoinlib.encoding.pubkeyhash_to_addr_base58(address),file=open("addresses.txt", "a"))
+
             bytes_to_add = address[ -(self._bytes_per_addr+self._hash_bytes) : -self._hash_bytes]
             if bytes_to_add.endswith(self._null_addr):
                 return  # ignore these invalid addresses
-            if self._len >= self._max_len:
-                raise ValueError("addition to AddressSet exceeds load factor")
+            if self._len >= self._max_len: #If load factor is exceeded, exit and display a helpful error message...
+                print()
+                print()
+                print("*****AddressDB Creation Failed*****")
+                print()
+                print("Offline Blockchain too large for AddressDB File... It might work if you retry and increase --dblength value by 1, though this will double the size of the file and RAM required to create it... (eg: 30 => 8GB required space and RAM) dblength for this run was:",int(math.log(self._dbLength,2)))
+                print("Alternatily you can use --blocks-startdate and --blocks-enddate to narrow the date range to check")
+                exit() #DB Creation Failed, exit the program...
+
             self._data[pos : pos+self._bytes_per_addr] = bytes_to_add
             self._len += 1
 
@@ -133,6 +170,11 @@ class AddressSet(object):
     # causing different addresses to appear to be the same and false positives, however
     # (with high probability) only for invalid addresses (those w/o private keys).
     def _find(self, addr_to_find):
+
+        #Check Address Type and convert to bytes if in str format (Keeps unit tests working as-is in python 3)
+        if type(addr_to_find) is str :
+            addr_to_find = addr_to_find.encode()
+
         pos = self._bytes_per_addr * (bytes_to_int(addr_to_find[ -self._hash_bytes :]) & self._hash_mask)
         while True:
             cur_addr = self._data[pos : pos+self._bytes_per_addr]
@@ -173,8 +215,8 @@ class AddressSet(object):
         header_dict = self.__dict__.copy()
         self._remove_nonheader_attribs(header_dict)
         header_dict["version"] = self.VERSION
-        header = repr(header_dict) + b"\r\n"
-        assert ast.literal_eval(header) == header_dict
+        header = repr(header_dict).encode() + b"\r\n"
+        assert ast.literal_eval(header.decode()) == header_dict
         header = self.MAGIC + header
         header_len = len(header)
         assert header_len < self.HEADER_LEN
@@ -224,7 +266,7 @@ class AddressSet(object):
         magic_len  = len(cls.MAGIC)
         config_end = header.find(b"\0", magic_len, cls.HEADER_LEN)
         assert config_end > 0
-        config = ast.literal_eval(header[magic_len:config_end])
+        config = ast.literal_eval(header[magic_len:config_end].decode())
         if config["version"] != cls.VERSION:
             raise ValueError("can't load address database version {} (only supports {})"
                              .format(config["version"], cls.VERSION))
@@ -235,10 +277,16 @@ class AddressSet(object):
         for attr in self.__dict__.keys():  # only load expected attributes from untrusted data
             self.__dict__[attr] = config[attr]
         self._mmap_access = mmap_access
-        #
-        # The hash table is memory-mapped directly from the file instead of being loaded
-        self._data = mmap.mmap(dbfile.fileno(), self._table_bytes, access=mmap_access,
-                                offset= header_pos + cls.HEADER_LEN)
+
+        #Try to create the AddressDB. If the addresset is sufficiently large (eg: BTC) then this requires 64 bit python and will crash if attempted with 32 bit Python...
+        try:
+            #
+            # The hash table is memory-mapped directly from the file instead of being loaded
+            self._data = mmap.mmap(dbfile.fileno(), self._table_bytes, access=mmap_access,
+                                    offset= header_pos + cls.HEADER_LEN)
+        except OverflowError:
+            print()
+            exit("AddressDB too large for use with 32 bit Python. You will need to install a 64 bit (x64) version of Python 3 from python.org and try again")
         if mmap_access == mmap.ACCESS_WRITE:
             dbfile.seek(header_pos)  # prepare for writing an updated header in close()
         else:
@@ -249,7 +297,7 @@ class AddressSet(object):
         # the OS load each page as it's touched in random order, especially with HDDs;
         # reading a byte from each page is sufficient (CPython doesn't optimize this away)
         if preload:
-            for i in xrange(self._table_bytes // mmap.PAGESIZE):
+            for i in range(self._table_bytes // mmap.PAGESIZE):
                 self._data[i * mmap.PAGESIZE]
         #
         return self
@@ -276,7 +324,7 @@ class AddressSet(object):
 # Decodes a Bitcoin-style variable precision integer and
 # returns a tuple containing its value and incremented offset
 def varint(data, offset):
-    b = ord(data[offset])
+    b = data[offset]
     if b <= 252:
         return b, offset + 1
     if b == 253:
@@ -287,8 +335,7 @@ def varint(data, offset):
         return struct.unpack_from("<Q", data, offset + 1)[0], offset + 9
     assert False
 
-
-def create_address_db(dbfilename, blockdir, update = False, progress_bar = True):
+def create_address_db(dbfilename, blockdir, table_len, startBlockDate="2019-01-01", endBlockDate="3000-12-31", startBlockFile = 0, addressDB_yolo = False, outputToText = False, update = False, progress_bar = True, addresslistfile = None, multiFile = False):
     """Creates an AddressSet database and saves it to a file
 
     :param dbfilename: the file name where the database is saved (overwriting it)
@@ -301,22 +348,23 @@ def create_address_db(dbfilename, blockdir, update = False, progress_bar = True)
     :type progress_bar: bool
     """
 
-    for filename in glob.iglob(path.join(blockdir, "blk*.dat")):
-        if path.isfile(filename): break
-    else:
-        raise ValueError("no block files exist in blocks directory '{}'".format(blockdir))
-
     if update:
         print("Loading address database ...")
         address_set   = AddressSet.fromfile(open(dbfilename, "r+b"), mmap_access=mmap.ACCESS_WRITE)
         first_filenum = address_set.last_filenum
         print()
     else:
-        first_filenum = 0
+        first_filenum = startBlockFile
 
-    filename = "blk{:05}.dat".format(first_filenum)
-    if not path.isfile(path.join(blockdir, filename)):
-        raise ValueError("first block file '{}' doesn't exist in blocks directory '{}'".format(filename, blockdir))
+    if not addresslistfile:
+        for filename in glob.iglob(path.join(blockdir, "blk*.dat")):
+            if path.isfile(filename): break
+        else:
+            raise ValueError("no block files exist in blocks directory '{}'".format(blockdir))
+
+        filename = "blk{:05}.dat".format(first_filenum)
+        if not path.isfile(path.join(blockdir, filename)):
+            raise ValueError("first block file '{}' doesn't exist in blocks directory '{}'".format(filename, blockdir))
 
     if not update:
         # Open the file early to make sure we can, but don't overwrite it yet
@@ -325,91 +373,188 @@ def create_address_db(dbfilename, blockdir, update = False, progress_bar = True)
             dbfile = io.open(dbfilename, "r+b")
         except IOError:
             dbfile = io.open(dbfilename, "wb")
-        # With the default bytes_per_addr and max_load, this allocates
-        # about 4 GiB which is room for a little over 400 million addresses
-        address_set = AddressSet(1 << 29)
 
-    if progress_bar:
+        #Try to create the AddressDB. If the addresset is sufficiently large (eg: BTC) then this requires 64 bit python and will crash if attempted with 32 bit Python...
         try:
-            import progressbar
-        except ImportError:
-            progress_bar = False
+            # With the default bytes_per_addr and max_load, this allocates
+            # about 8 GiB which is room for a little over 800 million addresses (Required as of 2019)
+            address_set = AddressSet(1 << table_len)
+        except OverflowError:
+            print()
+            exit("AddressDB too large for use with 32 bit Python. You will need to install a 64 bit (x64) version of Python 3 from python.org and try again")
 
-    if progress_bar:
-        print("Parsing block files ...")
+    if addresslistfile:
+        import btcrecover.btcrseed
+        print("Initial AddressDB Contains", len(address_set), "Addresses")
+        for i in range(9999):
+            if multiFile:
+                addresslistfile = addresslistfile[:-4] + '{:04d}'.format(i)
+            try:
+                with open(addresslistfile) as addressList_file:
+                    print("Loading: ", addresslistfile)
+                    addresses_loaded = 0
+                    for address in addressList_file:
+                        try:
+                            # Strip any and handle  JSON data present for some cryptos in data exported from bigquery
+                            if (address[2:11] == 'addresses'):
+                                address = address[15:-4]
+
+                            if(address[0:2] != '0x'):
+                                address_set.add(btcrecover.btcrseed.WalletBase._addresses_to_hash160s([address.rstrip()]).pop())
+                            else:
+                                address_set.add(btcrecover.btcrseed.WalletEthereum._addresses_to_hash160s([address.rstrip()]).pop())
+                            addresses_loaded += 1
+                            if(addresses_loaded % 1000000 == 0):
+                                print("Checked:", addresses_loaded, "addresses in current file,", len(address_set), "in unique Hash160s in AddressDB")
+
+                        except bitcoinlib.encoding.EncodingError:
+                            print("Skipping Invalid Address:", address.rstrip())
+                    print("Finished: ", addresslistfile)
+                    if not multiFile:
+                        break
+            except FileNotFoundError:
+                if multiFile:
+                    continue
+                else:
+                    print("File:", addresslistfile, " not found")
+                    exit()
+
+        print("Finished AddressDB Contains", len(address_set), "Addresses")
+
+    else:
+        if progress_bar:
+            try:
+                import progressbar
+            except ImportError:
+                progress_bar = False
+
+        if progress_bar:
+            print("Parsing block files ...")
+            for filenum in itertools.count(first_filenum):
+                filename = path.join(blockdir, "blk{:05}.dat".format(filenum))
+                if not path.isfile(filename):
+                    break
+            progress_label = progressbar.FormatLabel(" {:11,} addrs. %(elapsed)s, ".format(len(address_set)))
+            block_bar_widgets = [progressbar.SimpleProgress(), " ",
+                progressbar.Bar(left="[", fill="-", right="]"),
+                progress_label,
+                progressbar.ETA()]
+            progress_bar = progressbar.ProgressBar(maxval=filenum-first_filenum, widgets=block_bar_widgets)
+            progress_bar.start()
+        else:
+            print("Started Timestamp     Block file       Address Count     Last Block DateTime")
+            print("-------------------   ------------     -------------     -------------------")
+            # e.g. blk00943.dat   255,212,706
+
         for filenum in itertools.count(first_filenum):
             filename = path.join(blockdir, "blk{:05}.dat".format(filenum))
             if not path.isfile(filename):
                 break
-        progress_label = progressbar.FormatLabel(" {:11,} addrs. %(elapsed)s, ".format(len(address_set)))
-        progress_bar = progressbar.ProgressBar(maxval=filenum-first_filenum, widgets=[
-            progressbar.SimpleProgress(), " ",
-            progressbar.Bar(left="[", fill="-", right="]"),
-            progress_label,
-            progressbar.ETA()
-        ])
-        progress_bar.start()
-    else:
-        print("Block file   Address count")
-        print("------------ -------------")
-        # e.g. blk00943.dat   255,212,706
+            address_set.last_filenum = filenum
 
-    for filenum in itertools.count(first_filenum):
-        filename = path.join(blockdir, "blk{:05}.dat".format(filenum))
-        if not path.isfile(filename):
-            break
-        address_set.last_filenum = filenum
+            with open(filename, "rb") as blockfile:
+                if not progress_bar:
+                    # Print Timestamp that this step occured
+                    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "   ", end="")
+                    print(path.basename(filename), end=" ")
 
-        with open(filename, "rb") as blockfile:
-            if not progress_bar:
-                print(path.basename(filename), end=" ")
+                header = blockfile.read(8)  # read in the magic and remaining (after these 8 bytes) block length
+                chain_magic = header[:4]
+                #print("Found Magic:", chain_magic.encode("hex"))
+                while len(header) == 8 and header[4:] != b"\0\0\0\0":
+                    if supportedChains(chain_magic) != 1: # Check magic to see if it is a chain we support
+                        if not addressDB_yolo: #Ignore checks on the blockchain type
+                            #Throw an error message and exit if we encounter unsupported magic value
+                            if supportedChains(chain_magic) == -1:
+                                print("Unrecognised Block Protocol (Unrecognised Magic), Found:", chain_magic, " You can force an AddressDB creation attempt by re-running this tool with the flag --dbyolo")
 
-            header = blockfile.read(8)  # read in the magic and remaining (after these 8 bytes) block length
-            while len(header) == 8 and header[4:] != b"\0\0\0\0":
-                assert header[:4] == b"\xf9\xbe\xb4\xd9"                        # magic
+                            if supportedChains(chain_magic) == 0:
+                                print("Incompatible Block Protocol, You can force an AddressDB creation attempt by re-running this tool with the flag --dbyolo, but it probably won't work")
 
-                block = blockfile.read(struct.unpack_from("<I", header, 4)[0])  # read in the rest of the block
-                tx_count, offset = varint(block, 80)                            # skips 80 bytes of header
-                for tx_num in xrange(tx_count):
-                    offset += 4                                                 # skips 4-byte tx version
-                    is_bip144 = block[offset] == b"\0"                          # bip-144 marker
-                    if is_bip144:
-                        offset += 2                                             # skips 1-byte marker & 1-byte flag
-                    txin_count, offset = varint(block, offset)
-                    for txin_num in xrange(txin_count):
-                        sigscript_len, offset = varint(block, offset + 36)      # skips 32-byte tx id & 4-byte tx index
-                        offset += sigscript_len + 4                             # skips sequence number & sigscript
-                    txout_count, offset = varint(block, offset)
-                    for txout_num in xrange(txout_count):
-                        pkscript_len, offset = varint(block, offset + 8)        # skips 8-byte satoshi count
+                            exit()
 
-                        # If this is a P2PKH script (OP_DUP OP_HASH160 PUSH(20) <20 address bytes> OP_EQUALVERIFY OP_CHECKSIG)
-                        if pkscript_len == 25 and block[offset:offset+3] == b"\x76\xa9\x14" and block[offset+23:offset+25] == b"\x88\xac":
-                            # Add the discovered address to the address set
-                            address_set.add(block[offset+3:offset+23])
+                    block = blockfile.read(struct.unpack_from("<I", header, 4)[0])  # read in the rest of the block
 
-                        offset += pkscript_len                                  # advances past the pubkey script
-                    if is_bip144:
-                        for txin_num in xrange(txin_count):
-                            stackitem_count, offset = varint(block, offset)
-                            for stackitem_num in xrange(stackitem_count):
-                                stackitem_len, offset = varint(block, offset)
-                                offset += stackitem_len                         # skips this stack item
-                    offset += 4                                                 # skips the 4-byte locktime
-                header = blockfile.read(8)  # read in the next magic and remaining block length
+                    tx_count, offset = varint(block, 80)                            # skips 80 bytes of header
+
+                    #Extract Block Header info (Useful for debugging extra new chains)
+                    #print("Block Header: ", block[0:80].encode("hex"))
+                    #print()
+
+                    #Get Block Header Info (Useful for debugging and limiting date range)
+                    block_version = block[0:4]
+                    block_prevHash = block[4:36]
+                    block_merkleRoot = block[36:68]
+                    block_time = struct.unpack("<I",block[68:72])[0]
+                    block_bits = struct.unpack("<I",block[72:76])[0]
+                    block_nonce = struct.unpack("<I",block[76:80])[0]
+
+                    #print_debug = False
+                    #if block_prevHash.encode("hex") =='52aa3101be5119a77cce7a8f2e2a8fcdfcbcf6ca0f3e15000000000000000000':
+                    #    print_debug = True
+                    #print("Block Version: ", block_version.hex())
+                    #print("Block PrevHash: ", block_prevHash.hex())
+                    #print("Block MerkleRoot: ", block_merkleRoot.hex())
+                    #print("Block Bits: ", block_bits)
+                    #print("Block Nonce: ", block_nonce)
+                    #print("Block TIme: ", block_time, " " , datetime.fromtimestamp(float(block_time)))
+
+                    blockDate = datetime.fromtimestamp(float(block_time))
+
+                    #Only add addresses which occur in blocks that are within the time window we are looking at
+                    if datetime.strptime(startBlockDate + " 00:00:00", '%Y-%m-%d %H:%M:%S') <= blockDate and datetime.strptime(endBlockDate + " 23:59:59", '%Y-%m-%d %H:%M:%S') >= blockDate:
+
+                        for tx_num in range(tx_count):
+
+                            offset += 4                                                 # skips 4-byte tx version
+                            is_bip144 = block[offset] == 0                          # bip-144 marker
+                            if is_bip144:
+                                offset += 2                                             # skips 1-byte marker & 1-byte flag
+                            txin_count, offset = varint(block, offset)
+                            for txin_num in range(txin_count):
+                                sigscript_len, offset = varint(block, offset + 36)      # skips 32-byte tx id & 4-byte tx index
+                                offset += sigscript_len + 4                             # skips sequence number & sigscript
+                            txout_count, offset = varint(block, offset)
+                            for txout_num in range(txout_count):
+                                pkscript_len, offset = varint(block, offset + 8)        # skips 8-byte satoshi count
+
+                                #if print_debug:
+                                #    print("Tx Data: ", block[offset:offset+100].encode("hex")) #Print all TX data (plus more for debugging)
+
+
+                                # If this is a P2PKH script (OP_DUP OP_HASH160 PUSH(20) <20 address bytes> OP_EQUALVERIFY OP_CHECKSIG)
+                                if pkscript_len == 25 and block[offset:offset+3] == b"\x76\xa9\x14" and block[offset+23:offset+25] == b"\x88\xac":
+                                    address_set.add(block[offset+3:offset+23],outputToText,'P2PKH')
+                                elif block[offset:offset+2] == b"\xa9\x14": #Check for Segwit Address
+                                    address_set.add(block[offset+2:offset+22],outputToText,'P2SH')
+                                elif block[offset:offset+2] == b"\x00\x14": #Check for Native Segwit Address
+                                    address_set.add(block[offset+2:offset+22],outputToText,'Bech32')
+
+                                offset += pkscript_len                                  # advances past the pubkey script
+                            if is_bip144:
+                                for txin_num in range(txin_count):
+                                    stackitem_count, offset = varint(block, offset)
+                                    for stackitem_num in range(stackitem_count):
+                                        stackitem_len, offset = varint(block, offset)
+                                        offset += stackitem_len                         # skips this stack item
+                            offset += 4                                                 # skips the 4-byte locktime
+
+
+                    header = blockfile.read(8)  # read in the next magic and remaining block length
+
+            if progress_bar:
+                block_bar_widgets[3] = progressbar.FormatLabel(" {:11,} addrs. %(elapsed)s, ".format(len(address_set))) # updates address count
+                nextval = progress_bar.currval + 1
+                if nextval > progress_bar.maxval:  # can happen if the bitcoin client is left running
+                    progress_bar.maxval = nextval
+                progress_bar.update(nextval)
+            else:
+                print("   {:13,}".format(len(address_set)), end="")
+                print("    ", blockDate)
 
         if progress_bar:
-            progress_label.format = " {:11,} addrs. %(elapsed)s, ".format(len(address_set))  # updates address count
-            nextval = progress_bar.currval + 1
-            if nextval > progress_bar.maxval:  # can happen if the bitcoin client is left running
-                progress_bar.maxval = nextval
-            progress_bar.update(nextval)
-        else:
-            print("{:13,}".format(len(address_set)))
-
-    if progress_bar:
-        progress_bar.widgets.pop()  # remove the ETA
-        progress_bar.finish()
+            progress_bar.widgets.pop()  # remove the ETA
+            progress_bar.finish()
     if update:
         print("\nSaving changes to address database ...")
         address_set.close()
@@ -419,4 +564,6 @@ def create_address_db(dbfilename, blockdir, update = False, progress_bar = True)
         address_set.tofile(dbfile)
         dbfile.close()
 
+    # Print Timestamp that this step occured
+    print(datetime.now().strftime("%Y-%m-%d %H:%M:%S"), ": ", end="")
     print("\nDone.")

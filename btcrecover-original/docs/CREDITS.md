@@ -7,6 +7,10 @@ includes but is not limited to:
  * aespython, please see [aespython/README.txt](aespython/README.txt) for
  more information
 
+* BitcoinLib, please see [bitcoinlib/README.rst](bitcoinlib/Readme.rst) for more information
+
+* Cashaddress, please see [cashaddress/README.md](cashaddress/READNE.md) for more information
+
  * Passlib, please see [passlib/README.txt](passlib/README.txt) for more information
 
  * progressbar, please see [progressbar/README.txt](progressbar/README.txt)
