@@ -2,8 +2,8 @@
 
 ## Introduction
 
-btcRecover original [here](https://github.com/3rdIteration/btcrecover/archive/master.zip)
-My copy here => [./btcrecover-original](./btcrecover-original)
+- btcRecover original [here](https://github.com/3rdIteration/btcrecover/archive/master.zip)
+- My copy here => [./btcrecover-original](./btcrecover-original)
 
 ## Installation troubleshooting
 
