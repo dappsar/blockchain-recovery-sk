@@ -15,11 +15,13 @@ get btcRecover:
 
 
 Run: 
+
 `sudo apt-get install -y python-dev build-essential procps curl file git autoconf autogen`sh
 
 Edit requirements.txt and downgrade coincurve to 16.0.0
 
 Run:
+
 `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
 
 `eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"`
@@ -29,6 +31,7 @@ Run:
 `pip3 install -r requirements.txt`
 
 Run Tests: 
+
 `python run-all-tests.py -vv`sh
 
 ### Error Updating Python3 pip AttributeError (OpenSSL_add_all_algorithms)
@@ -37,6 +40,7 @@ module 'lib' has no attribute 'OpenSSL_add_all_algorithms'
 https://stackoverflow.com/questions/74981558/error-updating-python3-pip-attributeerror-module-lib-has-no-attribute-openss
 
 Run: 
+
 `sudo apt purge python3 python3-pip python3-openssl`sh
 `rm -rf ~/.local/lib/python3.8`sh
 `sudo apt install libssl-dev libffi-dev python3 python3-pip python3-openssl`sh
