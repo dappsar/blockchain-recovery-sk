@@ -72,7 +72,7 @@ Result:
 
 ### with 12 seeds:
 
-`python3 seedrecover.py --no-dupchecks --mnemonic-length 12 --language en --dsw --wallet-type BIP39 --addr-limit 1 --bip32-path "m/84'/0'/0'/0/" --addrs bc1q7kw2uepv6hfffhhxx2vplkkpcwsslcw9hsupc6  --addr-limit 10 --tokenlist ./seeds.txt`
+`python3 seedrecover.py --no-dupchecks --mnemonic-length 12 --language en --dsw --wallet-type BIP39 --addr-limit 1 --bip32-path "m/84'/0'/0'/0/" --addrs bc1q7kw2uepv6hfffhhxx2vplkkpcwsslcw9hsupc6   --tokenlist ./seeds.txt`
 
 seed-list.txt content (put in lower-case, upper-case and so on):
     ocean hidden kidney famous rich season gloom husband spring boy attitude convince
@@ -93,6 +93,17 @@ seed-list.txt content (put in lower-case, upper-case and so on):
 `python3 seedrecover.py --wallet-type bip39 --addrs 15p2ihGM9xonsR3Z4W7bqZxBSCyEvNoVz2 --mnemonic "change solution sail drama shadow situate stove protect reform pool neglect swamp" --addr-limit 5`
 
 `python3 seedrecover.py --no-dupchecks --mnemonic-length 12 --language EN --dsw --wallet-type BIP39 --addr-limit 1 --addrs 17GR7xWtWrfYm6y3xoZy8cXioVqBbSYcpU --tokenlist ./btcrecover/test/test-listfiles/SeedTokenListTest.txt`
+
+-- with al seed in correct position
+`python3 seedrecover.py --wallet-type bip39 --addrs bc1qm4zz7jstwp5x5cqhmljtj76rvy63xglxwslfs2 --mnemonic "grocery still faith tribe worth bleak furnace raven report prevent young excuse" --addr-limit 5`
+
+-- with all less 1
+`python3 seedrecover.py --wallet-type bip39 --addrs bc1qm4zz7jstwp5x5cqhmljtj76rvy63xglxwslfs2 --mnemonic "grocery still faith tribe worth bleak furnace raven report young prevent" --addr-limit 5`
+
+-- with all less 2
+`python3 seedrecover.py --wallet-type bip39 --addrs bc1qm4zz7jstwp5x5cqhmljtj76rvy63xglxwslfs2 --mnemonic "grocery still faith tribe worth bleak furnace raven report prevent" --addr-limit 5`
+
+`python3 seedrecover.py --wallet-type bip39 --addrs bc1q7kw2uepv6hfffhhxx2vplkkpcwsslcw9hsupc6 --mnemonic "blast hollow state monkey elder present argue horse select love" --addr-limit 5`
 
 ## Get private Key from seeds
 
