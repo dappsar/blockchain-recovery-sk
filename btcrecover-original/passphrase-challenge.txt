@@ -1,4 +1,3 @@
 wasabiwallet
 huntingsats
 HuntingSats
-#HuntingSats!
