@@ -103,7 +103,12 @@ seed-list.txt content (put in lower-case, upper-case and so on):
 -- with all less 2
 `python3 seedrecover.py --wallet-type bip39 --addrs bc1qm4zz7jstwp5x5cqhmljtj76rvy63xglxwslfs2 --mnemonic "grocery still faith tribe worth bleak furnace raven report prevent" --addr-limit 5`
 
-`python3 seedrecover.py --wallet-type bip39 --addrs bc1q7kw2uepv6hfffhhxx2vplkkpcwsslcw9hsupc6 --mnemonic "blast hollow state monkey elder present argue horse select love" --addr-limit 5`
+`python3 seedrecover.py --wallet-type bip39 --addrs bc1qv87qf7prhjf2ld8vgm7l0mj59jggm6ae5jdkx2 --mnemonic "element entire sniff tired miracle solve shadow scatter hello never tank side sight isolate sister uniform advice pen praise soap lizard festival connect" --addr-limit 5`
+
+`python3 btcrecover.py --bip39 --addrs bc1q7kw2uepv6hfffhhxx2vplkkpcwsslcw9hsupc6 --mnemonic "blast hollow state monkey elder present argue horse select fire" --addr-limit 10 --passwordlist ./passwords.txt`
+
+python btcrecover.py --bip39 --addrs 1AmugMgC6pBbJGYuYmuRrEpQVB9BBMvCCn --addr-limit 10 --passwordlist ./passwords.txt`.txt --mnemonic "blast hollow state monkey elder present argue horse select fire"
+
 
 ## Get private Key from seeds
 
@@ -125,3 +130,28 @@ Keep in mind:
 
 
 you can try [here](https://bitcoiner.guide/seed/)
+
+
+## Passphrase
+
+```sh
+# TEST 1
+seeds = ['grocery','still','faith','tribe','worth','bleak', 'furnace','raven','report','prevent','young','excuse']
+Passphrase = ''
+wallet Result = 'bc1qm4zz7jstwp5x5cqhmljtj76rvy63xglxwslfs2'
+
+# Test seedRecovery with 10 seeds
+seedrecover.py --wallet-type bip39 --addrs bc1qm4zz7jstwp5x5cqhmljtj76rvy63xglxwslfs2 --mnemonic "grocery still faith tribe worth bleak furnace raven report prevent" --addr-limit 5
+# Result: found in 1 hour all 12 seeds
+
+---
+
+# TEST 2
+seeds = [same above]
+Passphrase = 'pepe'
+wallet Result = 'bc1qt362xg79gqujhu3djvq4lrzv9axfd9ucfef40s' 
+
+# Test seedRecovery with 10 seeds
+seedrecover.py --wallet-type bip39 --addrs bc1qt362xg79gqujhu3djvq4lrzv9axfd9ucfef40s --mnemonic "grocery still faith tribe worth bleak furnace raven report prevent" --addr-limit 5
+# Result: NOT FOUND (without passing the Passphrase, I would never get the address bc1qt362xg79gqujhu3djvq4lrzv9axfd9ucfef40s)
+```
