@@ -173,5 +173,11 @@ wallet Result = 'bc1q7kw2uepv6hfffhhxx2vplkkpcwsslcw9hsupc6'
 
 # Test seedRecovery with 10 seeds
 # documentation here: https://www.limontec.com/2023/01/bitcoin-seed-brute-force.html
-python3 seedrecover.py --no-dupchecks --mnemonic-length 12 --language EN --dsw --wallet-type bip39 --addrs bc1q7kw2uepv6hfffhhxx2vplkkpcwsslcw9hsupc6 --addr-limit 1 --passphrase-list ./passphrase-challenge.txt --tokenlist ./seeds-challenge.txt --no-eta
+# documentation about gpu usage: https://btcrecover.readthedocs.io/en/latest/GPU_Acceleration/
+
+python3 seedrecover.py --no-dupchecks --mnemonic-length 12 --language EN --dsw --wallet-type bip39 --addrs bc1q7kw2uepv6hfffhhxx2vplkkpcwsslcw9hsupc6 --addr-limit 1 --passphrase-list ./passphrase-challenge.txt --tokenlist ./seeds-challenge.txt --no-eta --enable-opencl
+# with gpu add: --enable-opencl --global-ws 4096 --local-ws 256
+# documentacion python opencl: https://pypi.org/project/pyopencl/
+# documentation python opencl windows: https://wiki.tiker.net/PyOpenCL/Installation/Windows/
+# Error no empty compiler output: set PYOPENCL_COMPILER_OUTPUT = 1
 ```
