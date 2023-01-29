@@ -165,4 +165,13 @@ wallet Result = 'bc1qt362xg79gqujhu3djvq4lrzv9axfd9ucfef40s'
 # Test seedRecovery with 10 seeds
 # documentation here: https://www.limontec.com/2023/01/bitcoin-seed-brute-force.html
 python3 seedrecover.py --no-dupchecks --mnemonic-length 12 --language EN --dsw --wallet-type bip39 --addrs bc1qt362xg79gqujhu3djvq4lrzv9axfd9ucfef40s --addr-limit 1 --passphrase-list ./passphrase.txt --tokenlist ./seeds.txt --no-eta
+
+# TEST 3
+seeds = [blast hollow state monkey elder present argue horse select fire ? ?]
+Passphrase = '?'
+wallet Result = 'bc1q7kw2uepv6hfffhhxx2vplkkpcwsslcw9hsupc6' 
+
+# Test seedRecovery with 10 seeds
+# documentation here: https://www.limontec.com/2023/01/bitcoin-seed-brute-force.html
+python3 seedrecover.py --no-dupchecks --mnemonic-length 12 --language EN --dsw --wallet-type bip39 --addrs bc1q7kw2uepv6hfffhhxx2vplkkpcwsslcw9hsupc6 --addr-limit 1 --passphrase-list ./passphrase-challenge.txt --tokenlist ./seeds-challenge.txt --no-eta
 ```
