@@ -141,7 +141,7 @@ Passphrase = ''
 wallet Result = 'bc1qm4zz7jstwp5x5cqhmljtj76rvy63xglxwslfs2'
 
 # Test seedRecovery with 10 seeds
-seedrecover.py --wallet-type bip39 --addrs bc1qm4zz7jstwp5x5cqhmljtj76rvy63xglxwslfs2 --mnemonic "grocery still faith tribe worth bleak furnace raven report prevent" --addr-limit 5
+python3 seedrecover.py --wallet-type bip39 --addrs bc1qm4zz7jstwp5x5cqhmljtj76rvy63xglxwslfs2 --mnemonic "grocery still faith tribe worth bleak furnace raven report prevent" --addr-limit 5
 # Result: found in 1 hour all 12 seeds
 
 ---
@@ -152,6 +152,17 @@ Passphrase = 'pepe'
 wallet Result = 'bc1qt362xg79gqujhu3djvq4lrzv9axfd9ucfef40s' 
 
 # Test seedRecovery with 10 seeds
-seedrecover.py --wallet-type bip39 --addrs bc1qt362xg79gqujhu3djvq4lrzv9axfd9ucfef40s --mnemonic "grocery still faith tribe worth bleak furnace raven report prevent" --addr-limit 5
+python3 seedrecover.py --wallet-type bip39 --addrs bc1qt362xg79gqujhu3djvq4lrzv9axfd9ucfef40s --mnemonic "grocery still faith tribe worth bleak furnace raven report prevent" --addr-limit 5
 # Result: NOT FOUND (without passing the Passphrase, I would never get the address bc1qt362xg79gqujhu3djvq4lrzv9axfd9ucfef40s)
+
+---
+
+# TEST 3
+seeds = [same above]
+Passphrase = 'pepe'
+wallet Result = 'bc1qt362xg79gqujhu3djvq4lrzv9axfd9ucfef40s' 
+
+# Test seedRecovery with 10 seeds
+# source https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgYYfvMkU0b_Umd1F2t2LbEgzyVOEA5sToQinyzfIj5Yc3Ts4eNmrdlLyiCHeUTDFs1CHxVl8OK0o6MDYlQ-k2BiX6-Q2A4kErzsjFkPX_KD3l86v3CeO3nbUJynHiFIFs9PwTrTwM8FLuqlALvIX9_5oBrBXoQnRU3G12OeOzJShDVWntlXJ2k5L62WQ/s1162/seedrecover.png
+python3 seedrecover.py --no-dupchecks --mnemonic-lngth 12 --language EN --dsw --wallet-type bip39 --addrs bc1qt362xg79gqujhu3djvq4lrzv9axfd9ucfef40s --addr-limit 1 --passphrase-list passphrase.txt --tokenlist seeds.txt --no-eta
 ```

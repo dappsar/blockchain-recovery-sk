@@ -5,6 +5,7 @@
 + elder
 + present
 + argue
++ fire
 abandon
 ability
 able
@@ -699,7 +700,6 @@ find
 fine
 finger
 finish
-fire
 firm
 first
 fiscal
