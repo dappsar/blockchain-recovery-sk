@@ -8,5 +8,9 @@
 + horse
 + select
 + hold
+ocean
+just
+timber
+lake
 fire
 wood
