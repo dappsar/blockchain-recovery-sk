@@ -7,9 +7,6 @@
 + argue
 + horse
 + select
-+ fire 
-+ profit
-zebra
-zero
-zone
-zoo
++ hold
+fire
+wood
