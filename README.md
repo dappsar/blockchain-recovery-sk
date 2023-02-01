@@ -206,7 +206,7 @@ YOu can use Google Cloud: VM vCPUs 24, ram 16 gb (not necessary, but it's the mi
 ### ETA (Time de process takes?)
 
 ```sh
-=~ With that resources (1VM 25 CPUs): ~= 7 hours 😢 
+=~ With that resources (1VM 24 vCPUs): ~= 127 minutes 😢 
 (62.5K keys/Seg. You have to calculate 12! combinations = 479.001.600 combinations to look for 
 ```
 
