@@ -181,3 +181,36 @@ python3 seedrecover.py --no-dupchecks --mnemonic-length 12 --language EN --dsw -
 # documentation python opencl windows: https://wiki.tiker.net/PyOpenCL/Installation/Windows/
 # Error no empty compiler output: set PYOPENCL_COMPILER_OUTPUT = 1
 ```
+
+---
+
+## Final run (sequencia or parallel)
+
+
+### Command:
+    python3 seedrecover.py --no-dupchecks --mnemonic-length 12 --language EN --dsw --wallet-type bip39 --addrs bc1q7kw2uepv6hfffhhxx2vplkkpcwsslcw9hsupc6 --addr-limit 1 --passphrase-list ./passphrase-challenge.13.txt --tokenlist ./seeds-challenge.13.txt --no-eta
+
+### txt files:
+    passphrase-challenge.txt: just one word as passphrase. e.g: banana
+    seeds-challenge.txt: rest of words (12)
+
+### where?: 
+    GCP, VM vCPUs 24, ram 16 gb (not necessary, but it's the minimum for 32 cpu)
+
+### cost?:
+    ~=1.5 USD by hour, but you can use free teer (300 usd), so: free! 😄
+
+### time?: 
+    =~ With that resources: 62.5K keys/Seg. Keys to search: !12 = 479.001.600. So: ~= 7 hours .😢 
+
+### found correct order? 
+    yes?: great! 😄
+
+    ![alt not found](./images/notfound.png)
+
+    no? : rotate the passphrase selected. e.g.: Put "profit" in passphrase-challenge.txt and restore "banana" in seeds-challenge.txt (in place of profit). Do the same until found correct 12 words order and correct passphrase  (max.: 13 times).
+
+### total time:
+    Sequential (if you have only 1 VM): 13 * 7 hours  = 91 hours (worst case, where you find the solution in the last process!)
+    in parallel (13 processes): 7 hours
+
