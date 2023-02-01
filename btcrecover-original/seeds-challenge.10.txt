@@ -1,12 +1,12 @@
-blast
-hollow
-state
-banana
-elder
-present
-argue
-horse
-select
-profit
-timber
-ring
++ blast
++ hollow
++ state
++ banana
++ elder
++ present
++ argue
++ horse
++ select
++ profit
++ timber
++ ring
