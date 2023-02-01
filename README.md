@@ -236,3 +236,9 @@ in parallel (13 processes): 7 hours
 - option 2: Import seeds in wallet. Example [Electrum](https://electrum.org/#home)
 - option 3: [bitcoiner guide](https://bitcoiner.guide/seed/)
 
+
+---
+
+## References Links
+
+* [Hunting Sats Together](https://bin.idrix.fr/?94cde0ad4aee8ffb#ABLy3dAfS8m9dEj1mpmvmmEZerHjQ3sgqwBJvxyoJhht)
