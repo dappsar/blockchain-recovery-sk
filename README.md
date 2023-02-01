@@ -51,7 +51,6 @@ Run:
 
 ## btcRecover in action
 
-
 ### With partial seeds:
 
 Command:
@@ -110,12 +109,6 @@ seed-list.txt content (put in lower-case, upper-case and so on):
 python btcrecover.py --bip39 --addrs 1AmugMgC6pBbJGYuYmuRrEpQVB9BBMvCCn --addr-limit 10 --passwordlist ./passwords.txt`.txt --mnemonic "blast hollow state monkey elder present argue horse select fire"
 
 
-## Get private Key from seeds
-
-- option 1: [Mnemonic Code Converter](https://iancoleman.io/bip39/#english)
-- option 2: Import seeds in wallet. Example [Electrum](https://electrum.org/#home)
-- option 3: [bitcoiner guide](https://bitcoiner.guide/seed/)
-
 ---
 
 Keep in mind:
@@ -132,7 +125,7 @@ Keep in mind:
 you can try [here](https://bitcoiner.guide/seed/)
 
 
-## Passphrase
+## Passphrase Tests
 
 ```sh
 # TEST 1
@@ -144,8 +137,6 @@ wallet Result = 'bc1qm4zz7jstwp5x5cqhmljtj76rvy63xglxwslfs2'
 python3 seedrecover.py --wallet-type bip39 --addrs bc1qm4zz7jstwp5x5cqhmljtj76rvy63xglxwslfs2 --mnemonic "grocery still faith tribe worth bleak furnace raven report prevent" --addr-limit 5
 # Result: found in 1 hour all 12 seeds
 
----
-
 # TEST 2
 seeds = [same above]
 Passphrase = 'pepe'
@@ -154,8 +145,6 @@ wallet Result = 'bc1qt362xg79gqujhu3djvq4lrzv9axfd9ucfef40s'
 # Test seedRecovery with 10 seeds
 python3 seedrecover.py --wallet-type bip39 --addrs bc1qt362xg79gqujhu3djvq4lrzv9axfd9ucfef40s --mnemonic "grocery still faith tribe worth bleak furnace raven report prevent" --addr-limit 5
 # Result: NOT FOUND (without passing the Passphrase, I would never get the address bc1qt362xg79gqujhu3djvq4lrzv9axfd9ucfef40s)
-
----
 
 # TEST 3
 seeds = [same above]
@@ -166,7 +155,7 @@ wallet Result = 'bc1qt362xg79gqujhu3djvq4lrzv9axfd9ucfef40s'
 # documentation here: https://www.limontec.com/2023/01/bitcoin-seed-brute-force.html
 python3 seedrecover.py --no-dupchecks --mnemonic-length 12 --language EN --dsw --wallet-type bip39 --addrs bc1qt362xg79gqujhu3djvq4lrzv9axfd9ucfef40s --addr-limit 1 --passphrase-list ./passphrase.txt --tokenlist ./seeds.txt --no-eta
 
-# TEST 3
+# TEST 4
 seeds = [blast hollow state monkey elder present argue horse select fire ? ?]
 Passphrase = '?'
 wallet Result = 'bc1q7kw2uepv6hfffhhxx2vplkkpcwsslcw9hsupc6' 
@@ -184,33 +173,44 @@ python3 seedrecover.py --no-dupchecks --mnemonic-length 12 --language EN --dsw -
 
 ---
 
-## Final run (sequencia or parallel)
 
+## Final process (13 processes) to run [Hunting Sats chllange](https://www.huntingsats.com/)
 
-### Command:
+### Command
     python3 seedrecover.py --no-dupchecks --mnemonic-length 12 --language EN --dsw --wallet-type bip39 --addrs bc1q7kw2uepv6hfffhhxx2vplkkpcwsslcw9hsupc6 --addr-limit 1 --passphrase-list ./passphrase-challenge.13.txt --tokenlist ./seeds-challenge.13.txt --no-eta
 
-### txt files:
+### txt files content
     passphrase-challenge.txt: just one word as passphrase. e.g: banana
     seeds-challenge.txt: rest of words (12)
 
-### where?: 
-    GCP, VM vCPUs 24, ram 16 gb (not necessary, but it's the minimum for 32 cpu)
+    [alta 13 combinations](./images/processes.png)
 
-### cost?:
-    ~=1.5 USD by hour, but you can use free teer (300 usd), so: free! 😄
+### Where run?
+    YOu can use Google Cloud: VM vCPUs 24, ram 16 gb (not necessary, but it's the minimum for 32 cpu)
 
-### time?: 
-    =~ With that resources: 62.5K keys/Seg. Keys to search: !12 = 479.001.600. So: ~= 7 hours .😢 
+### cost to run in cloud?
+    ~=1.5 USD by hour by VM, but you can use free teer (300 usd), so: free! 😄
 
-### found correct order? 
+### ETA (Time de process takes?)
+    =~ With that resources (1VM 25 CPUs): ~= 7 hours 😢 
+    (62.5K keys/Seg. You have to calculate 12! combinations = 479.001.600 combinations to look for 
+
+### You found the correct order? 
     yes?: great! 😄
 
     ![alt not found](./images/notfound.png)
 
-    no? : rotate the passphrase selected. e.g.: Put "profit" in passphrase-challenge.txt and restore "banana" in seeds-challenge.txt (in place of profit). Do the same until found correct 12 words order and correct passphrase  (max.: 13 times).
+    no? : rotate the passphrase selected. e.g.: Put "profit" in passphrase-challenge.txt and restore "banana" in seeds-challenge.txt (in place of profit). Repeat the same until you find the order of the 12 words and the correct passphrase (max.: 13 times).
 
-### total time:
+### Total time
+
     Sequential (if you have only 1 VM): 13 * 7 hours  = 91 hours (worst case, where you find the solution in the last process!)
     in parallel (13 processes): 7 hours
+
+
+### Get private Key from seeds
+
+- option 1: [Mnemonic Code Converter](https://iancoleman.io/bip39/#english)
+- option 2: Import seeds in wallet. Example [Electrum](https://electrum.org/#home)
+- option 3: [bitcoiner guide](https://bitcoiner.guide/seed/)
 
