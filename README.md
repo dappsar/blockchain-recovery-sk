@@ -177,36 +177,58 @@ python3 seedrecover.py --no-dupchecks --mnemonic-length 12 --language EN --dsw -
 ## Final process (13 processes) to run [Hunting Sats chllange](https://www.huntingsats.com/)
 
 ### Command
-    python3 seedrecover.py --no-dupchecks --mnemonic-length 12 --language EN --dsw --wallet-type bip39 --addrs bc1q7kw2uepv6hfffhhxx2vplkkpcwsslcw9hsupc6 --addr-limit 1 --passphrase-list ./passphrase-challenge.13.txt --tokenlist ./seeds-challenge.13.txt --no-eta
+        
+```sh  
+python3 seedrecover.py --no-dupchecks --mnemonic-length 12 --language EN --dsw --wallet-type bip39 --addrs bc1q7kw2uepv6hfffhhxx2vplkkpcwsslcw9hsupc6 --addr-limit 1 --passphrase-list ./passphrase-challenge.13.txt --tokenlist ./seeds-challenge.13.txt --no-eta
+```
 
 ### txt files content
-    passphrase-challenge.txt: just one word as passphrase. e.g: banana
-    seeds-challenge.txt: rest of words (12)
 
-    [alta 13 combinations](./images/processes.png)
+```sh 
+passphrase-challenge.txt: just one word as passphrase. e.g: banana
+seeds-challenge.txt: rest of words (12)
+```
+
+[alta 13 combinations](./images/processes.png)
 
 ### Where run?
-    YOu can use Google Cloud: VM vCPUs 24, ram 16 gb (not necessary, but it's the minimum for 32 cpu)
+
+```sh 
+YOu can use Google Cloud: VM vCPUs 24, ram 16 gb (not necessary, but it's the minimum for 32 cpu)
+```
 
 ### cost to run in cloud?
-    ~=1.5 USD by hour by VM, but you can use free teer (300 usd), so: free! 😄
+
+```sh 
+~=1.5 USD by hour by VM, but you can use free teer (300 usd), so: free! 😄
+```
 
 ### ETA (Time de process takes?)
-    =~ With that resources (1VM 25 CPUs): ~= 7 hours 😢 
-    (62.5K keys/Seg. You have to calculate 12! combinations = 479.001.600 combinations to look for 
+
+```sh
+=~ With that resources (1VM 25 CPUs): ~= 7 hours 😢 
+(62.5K keys/Seg. You have to calculate 12! combinations = 479.001.600 combinations to look for 
+```
 
 ### You found the correct order? 
-    yes?: great! 😄
 
-    ![alt not found](./images/notfound.png)
+```sh
+no? : rotate the passphrase selected. e.g.: Put "profit" in passphrase-challenge.txt and restore "banana" in seeds-challenge.txt (in place of profit). Repeat the same until you find the order of the 12 words and the correct passphrase (max.: 13 times).
+```
 
-    no? : rotate the passphrase selected. e.g.: Put "profit" in passphrase-challenge.txt and restore "banana" in seeds-challenge.txt (in place of profit). Repeat the same until you find the order of the 12 words and the correct passphrase (max.: 13 times).
+![alt not found](./images/notfound.png)
+
+
+```sh
+yes?: great! 😄
+```
 
 ### Total time
 
-    Sequential (if you have only 1 VM): 13 * 7 hours  = 91 hours (worst case, where you find the solution in the last process!)
-    in parallel (13 processes): 7 hours
-
+```sh
+Sequential (if you have only 1 VM): 13 * 7 hours  = 91 hours (worst case, where you find the solution in the last process!)
+in parallel (13 processes): 7 hours
+```
 
 ### Get private Key from seeds
 
