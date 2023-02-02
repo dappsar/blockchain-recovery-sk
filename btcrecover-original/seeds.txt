@@ -1,12 +1,12 @@
-+ grocery 
-+ still 
-+ faith 
-+ tribe 
-+ worth 
-+ bleak 
-+ furnace 
-+ raven 
-+ report 
+^1^grocery 
+^2^still 
+^3^faith 
+^4^tribe 
+^5^worth 
+^6^bleak 
+^7^furnace 
+^8^raven 
+^9^report 
++ prevent 
 + young 
 + excuse 
-+ prevent 
