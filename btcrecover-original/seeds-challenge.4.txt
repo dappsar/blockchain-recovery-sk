@@ -1,12 +1,12 @@
-+ blast
-+ hollow
-+ state
-+ monkey
-+ elder
-+ present
-+ argue
-+ horse
-+ select
-+ banana
-+ timber
-+ ring
+blast
+hollow
+state
+monkey
+elder
+present
+argue
+horse
+select
+banana
+timber
+ring

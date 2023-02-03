@@ -1,12 +1,12 @@
-+ banana
-+ hollow
-+ state
-+ monkey
-+ elder
-+ present
-+ argue
-+ horse
-+ select
-+ profit
-+ timber
-+ ring
+banana
+hollow
+state
+monkey
+elder
+present
+argue
+horse
+select
+profit
+timber
+ring
